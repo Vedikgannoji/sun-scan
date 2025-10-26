@@ -1,21 +1,19 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
-import EstimatePreview from "@/components/EstimatePreview";
-import DashboardPreview from "@/components/DashboardPreview";
+import HowItWorks from "@/components/HowItWorks";
+import KeyFeatures from "@/components/KeyFeatures";
+import LoginCTA from "@/components/LoginCTA";
 import Footer from "@/components/Footer";
-import Chatbot from "@/components/Chatbot";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
       <Hero />
-      <About />
-      <EstimatePreview />
-      <DashboardPreview />
+      <HowItWorks />
+      <KeyFeatures />
+      <LoginCTA />
       <Footer />
-      <Chatbot />
     </div>
   );
 };

@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-3 gap-12 mb-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">Solar PIV</h3>
+            <h3 className="text-2xl font-bold mb-4">SunScan</h3>
             <p className="text-primary-foreground/80">
               Empowering clean energy decisions through AI-powered solar potential estimation.
             </p>
@@ -60,7 +60,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 pt-8 text-center">
           <p className="text-primary-foreground/80">
-            © 2024 Solar PIV Estimator. All rights reserved.
+            © 2024 SunScan. All rights reserved.
           </p>
         </div>
       </div>

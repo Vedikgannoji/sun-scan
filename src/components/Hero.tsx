@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 import heroImage from "@/assets/hero-solar-farm.jpg";
 
 const Hero = () => {
@@ -19,7 +20,7 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
           className="text-5xl md:text-7xl font-bold text-white mb-6"
         >
-          Solar PIV Estimator
+          SunScan
         </motion.h1>
         
         <motion.p
@@ -39,14 +40,24 @@ const Hero = () => {
         >
           <Link to="/estimate">
             <Button variant="hero" size="lg">
-              Estimate Now
+              Get Started
             </Button>
           </Link>
-          <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-foreground">
-            Learn More
-          </Button>
         </motion.div>
       </div>
+      
+      {/* Floating Chat Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+      >
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 flex items-center gap-3 shadow-medium">
+          <MessageCircle className="w-5 h-5 text-white" />
+          <span className="text-white font-medium">Ask SolarBot a Question</span>
+        </div>
+      </motion.div>
     </section>
   );
 };

@@ -24,19 +24,13 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-foreground">
-          Solar PIV
+        <Link to="/" className="text-2xl font-bold text-white">
+          SunScan
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-foreground hover:text-primary transition-smooth">
+          <Link to="/" className="text-white hover:text-white/80 transition-smooth">
             Home
-          </Link>
-          <Link to="/estimate" className="text-foreground hover:text-primary transition-smooth">
-            Estimate
-          </Link>
-          <Link to="/dashboard" className="text-foreground hover:text-primary transition-smooth">
-            Dashboard
           </Link>
           <Link to="/auth">
             <Button size="sm">Login</Button>

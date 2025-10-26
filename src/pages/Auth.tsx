@@ -27,7 +27,7 @@ const Auth = () => {
         <Card className="p-8 shadow-medium">
           <div className="text-center mb-8">
             <Link to="/" className="text-3xl font-bold text-foreground">
-              Solar PIV
+              SunScan
             </Link>
             <h2 className="text-2xl font-semibold mt-4 mb-2">
               {isLogin ? "Welcome Back" : "Create Account"}
