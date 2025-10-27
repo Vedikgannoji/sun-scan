@@ -24,12 +24,16 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-white">
+        <Link to="/" className={`text-2xl font-bold transition-smooth ${
+          isScrolled ? "text-foreground" : "text-white"
+        }`}>
           SunScan
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-white hover:text-white/80 transition-smooth">
+          <Link to="/" className={`transition-smooth ${
+            isScrolled ? "text-foreground hover:text-foreground/80" : "text-white hover:text-white/80"
+          }`}>
             Home
           </Link>
           <Link to="/auth">
