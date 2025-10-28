@@ -1,102 +1,257 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Upload, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Map, Settings, LogOut } from "lucide-react";
 
 const Estimate = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [latitude, setLatitude] = useState("28.6139");
+  const [longitude, setLongitude] = useState("77.209");
+  const [projectType, setProjectType] = useState("commercial");
+  const [installationArea, setInstallationArea] = useState("500");
+  const [tiltAngle, setTiltAngle] = useState([30]);
+  const [orientation, setOrientation] = useState("south");
+  const [panelEfficiency, setPanelEfficiency] = useState([20]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
+  useEffect(() => {
+    // Check authentication status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setLoading(false);
+      }
+    });
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
-  const handleEstimate = () => {
-    setIsProcessing(true);
-    // Simulate processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert("Estimation complete! Please log in to view your detailed dashboard.");
-    }, 3000);
+  const handleCalculate = () => {
+    // Placeholder for calculation logic
+    console.log("Calculate Solar Potential", {
+      latitude,
+      longitude,
+      projectType,
+      installationArea,
+      tiltAngle: tiltAngle[0],
+      orientation,
+      panelEfficiency: panelEfficiency[0]
+    });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-1 pt-24 px-6 pb-16">
-        <div className="container mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-5xl font-bold mb-4">Solar Estimation</h1>
-            <p className="text-xl text-muted-foreground">
-              Upload your rooftop image to get instant solar potential analysis
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white border-b border-border px-6 py-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground">SunScan</h1>
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
+        </div>
+      </header>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Card className="p-12 shadow-medium">
-              <div className="space-y-6">
-                <div className="border-2 border-dashed border-border rounded-xl p-12 text-center hover:border-primary transition-smooth cursor-pointer">
-                  <input
-                    type="file"
-                    id="file-upload"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Area Measurement Tool */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Map className="w-5 h-5 text-primary" />
+                <CardTitle>Area Measurement Tool</CardTitle>
+              </div>
+              <CardDescription>
+                Use the drawing tools on the map to measure your installation area
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude">
+                    <span className="flex items-center gap-1">
+                      <Map className="w-4 h-4" />
+                      Latitude
+                    </span>
+                  </Label>
+                  <Input
+                    id="latitude"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                    placeholder="28.6139"
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <Upload className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-xl font-semibold mb-2">
-                      {file ? file.name : "Choose or drag image here"}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Supported formats: JPG, PNG, HEIC
-                    </p>
-                  </label>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude">
+                    <span className="flex items-center gap-1">
+                      <Map className="w-4 h-4" />
+                      Longitude
+                    </span>
+                  </Label>
+                  <Input
+                    id="longitude"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                    placeholder="77.209"
+                  />
+                </div>
+              </div>
 
-                <Button
-                  onClick={handleEstimate}
-                  disabled={!file || isProcessing}
-                  className="w-full"
-                  size="lg"
-                  variant="hero"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Generate Estimate"
-                  )}
+              {/* Map Placeholder */}
+              <div className="w-full h-96 bg-muted rounded-lg border-2 border-dashed border-border flex items-center justify-center">
+                <div className="text-center space-y-2">
+                  <Map className="w-12 h-12 text-muted-foreground mx-auto" />
+                  <p className="text-lg font-semibold text-foreground">Coming Soon</p>
+                  <p className="text-sm text-muted-foreground">Interactive map will be available here</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1">
+                  Clear Drawing
                 </Button>
+                <Button variant="outline" className="flex-1">
+                  Recenter Map
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-                <p className="text-sm text-muted-foreground text-center">
-                  Your image will be analyzed using AI to calculate solar irradiance,
-                  roof coverage area, and estimated energy generation potential.
+          {/* Project Configuration */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                <CardTitle>Project Configuration</CardTitle>
+              </div>
+              <CardDescription>
+                Configure project parameters for commercial-grade analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="projectType">
+                  <span className="flex items-center gap-1">
+                    <Settings className="w-4 h-4" />
+                    Project Type
+                  </span>
+                </Label>
+                <Select value={projectType} onValueChange={setProjectType}>
+                  <SelectTrigger id="projectType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="residential">Residential (1-10 kW)</SelectItem>
+                    <SelectItem value="commercial">Commercial (10-100 kW)</SelectItem>
+                    <SelectItem value="industrial">Industrial (100+ kW)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="installationArea">
+                  <span className="flex items-center gap-1">
+                    <Settings className="w-4 h-4" />
+                    Installation Area (m²)
+                  </span>
+                </Label>
+                <Input
+                  id="installationArea"
+                  type="number"
+                  value={installationArea}
+                  onChange={(e) => setInstallationArea(e.target.value)}
+                  placeholder="500"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Total available area for solar panel installation
                 </p>
               </div>
-            </Card>
-          </motion.div>
-        </div>
-      </main>
 
-      <Footer />
+              <div className="space-y-3">
+                <Label>
+                  <span className="flex items-center gap-1">
+                    <Settings className="w-4 h-4" />
+                    Tilt Angle: {tiltAngle[0]}°
+                  </span>
+                </Label>
+                <Slider
+                  value={tiltAngle}
+                  onValueChange={setTiltAngle}
+                  min={0}
+                  max={90}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="orientation">
+                  <span className="flex items-center gap-1">
+                    <Settings className="w-4 h-4" />
+                    Orientation
+                  </span>
+                </Label>
+                <Select value={orientation} onValueChange={setOrientation}>
+                  <SelectTrigger id="orientation">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="north">North</SelectItem>
+                    <SelectItem value="south">South</SelectItem>
+                    <SelectItem value="east">East</SelectItem>
+                    <SelectItem value="west">West</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Panel Efficiency: {panelEfficiency[0]}%</Label>
+                <Slider
+                  value={panelEfficiency}
+                  onValueChange={setPanelEfficiency}
+                  min={10}
+                  max={30}
+                  step={1}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Modern commercial panels: 18-22% typical
+                </p>
+              </div>
+
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleCalculate}
+              >
+                Calculate Solar Potential
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

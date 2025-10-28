@@ -38,7 +38,7 @@ const Hero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="flex justify-center"
         >
-          <Link to="/estimate">
+          <Link to="/auth">
             <Button variant="hero" size="lg">
               Get Started
             </Button>

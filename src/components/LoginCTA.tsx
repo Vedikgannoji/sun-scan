@@ -18,7 +18,7 @@ const LoginCTA = () => {
             Create an account to save your results and access advanced features
           </p>
           <div className="flex justify-center">
-            <Link to="/estimate">
+            <Link to="/auth">
               <Button size="lg" variant="default">
                 Get Started
               </Button>
