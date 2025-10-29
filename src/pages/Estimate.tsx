@@ -7,8 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Map as MapIcon, Settings, LogOut } from "lucide-react";
+import { Map as MapIcon, Settings, LogOut, Box } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Map from "@/components/Map";
+import Map3D from "@/components/Map3D";
+import SolarResults from "@/components/SolarResults";
+import { getSolarAnalysis, type SolarData } from "@/lib/solarCalculations";
 
 const Estimate = () => {
   const navigate = useNavigate();
@@ -21,6 +25,8 @@ const Estimate = () => {
   const [orientation, setOrientation] = useState("south");
   const [panelEfficiency, setPanelEfficiency] = useState([20]);
   const [measuredArea, setMeasuredArea] = useState(0);
+  const [mapMode, setMapMode] = useState<"2d" | "3d">("3d");
+  const [solarResults, setSolarResults] = useState<SolarData | null>(null);
 
   const handleCoordinatesChange = (lat: number, lng: number) => {
     setLatitude(lat.toFixed(6));
@@ -37,7 +43,17 @@ const Estimate = () => {
   };
 
   const handleClearDrawing = () => {
-    (window as any).mapControls?.clearDrawing();
+    if (mapMode === "2d") {
+      (window as any).mapControls?.clearDrawing();
+    } else {
+      (window as any).map3DControls?.clearDrawing();
+    }
+  };
+
+  const handleDrawPolygon = () => {
+    if (mapMode === "3d") {
+      (window as any).map3DControls?.drawPolygon();
+    }
   };
 
   useEffect(() => {
@@ -57,16 +73,23 @@ const Estimate = () => {
   };
 
   const handleCalculate = () => {
-    // Placeholder for calculation logic
-    console.log("Calculate Solar Potential", {
-      latitude,
-      longitude,
-      projectType,
-      installationArea,
-      tiltAngle: tiltAngle[0],
+    const area = parseFloat(installationArea) || 0;
+    if (area === 0) {
+      return;
+    }
+
+    const results = getSolarAnalysis(
+      parseFloat(latitude),
+      parseFloat(longitude),
+      area,
+      tiltAngle[0],
       orientation,
-      panelEfficiency: panelEfficiency[0]
-    });
+      panelEfficiency[0],
+      new Date(),
+      false // hasObstructions - can be enhanced later
+    );
+
+    setSolarResults(results);
   };
 
   if (loading) {
@@ -96,15 +119,32 @@ const Estimate = () => {
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Area Measurement Tool */}
+          {/* Results Panel - Show at top on mobile */}
+          <div className="lg:col-span-2 lg:hidden">
+            <SolarResults results={solarResults} area={measuredArea} />
+          </div>
+          {/* Map and Measurement Tool */}
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <MapIcon className="w-5 h-5 text-primary" />
-                <CardTitle>Area Measurement Tool</CardTitle>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapIcon className="w-5 h-5 text-primary" />
+                  <CardTitle>3D Solar PIV Estimator</CardTitle>
+                </div>
+                <Tabs value={mapMode} onValueChange={(v) => setMapMode(v as "2d" | "3d")}>
+                  <TabsList className="grid w-32 grid-cols-2">
+                    <TabsTrigger value="2d" className="text-xs">2D</TabsTrigger>
+                    <TabsTrigger value="3d" className="text-xs">
+                      <Box className="w-3 h-3 mr-1" />
+                      3D
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
               <CardDescription>
-                Use the drawing tools on the map to measure your installation area
+                {mapMode === "3d" 
+                  ? "3D visualization with real-time sun position and shadow analysis"
+                  : "Use the drawing tools on the map to measure your installation area"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -140,12 +180,21 @@ const Estimate = () => {
               </div>
 
               {/* Interactive Map */}
-              <Map
-                latitude={latitude}
-                longitude={longitude}
-                onCoordinatesChange={handleCoordinatesChange}
-                onAreaChange={handleAreaChange}
-              />
+              {mapMode === "2d" ? (
+                <Map
+                  latitude={latitude}
+                  longitude={longitude}
+                  onCoordinatesChange={handleCoordinatesChange}
+                  onAreaChange={handleAreaChange}
+                />
+              ) : (
+                <Map3D
+                  latitude={latitude}
+                  longitude={longitude}
+                  onCoordinatesChange={handleCoordinatesChange}
+                  onAreaChange={handleAreaChange}
+                />
+              )}
 
               {measuredArea > 0 && (
                 <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
@@ -156,6 +205,11 @@ const Estimate = () => {
               )}
 
               <div className="flex gap-2">
+                {mapMode === "3d" && (
+                  <Button variant="outline" className="flex-1" onClick={handleDrawPolygon}>
+                    Draw Area
+                  </Button>
+                )}
                 <Button variant="outline" className="flex-1" onClick={handleClearDrawing}>
                   Clear Drawing
                 </Button>
@@ -277,6 +331,11 @@ const Estimate = () => {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Results Panel - Desktop */}
+          <div className="hidden lg:block">
+            <SolarResults results={solarResults} area={measuredArea} />
+          </div>
         </div>
       </div>
     </div>
