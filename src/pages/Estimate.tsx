@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Map, Settings, LogOut } from "lucide-react";
+import { Map as MapIcon, Settings, LogOut } from "lucide-react";
+import Map from "@/components/Map";
 
 const Estimate = () => {
   const navigate = useNavigate();
@@ -19,6 +20,25 @@ const Estimate = () => {
   const [tiltAngle, setTiltAngle] = useState([30]);
   const [orientation, setOrientation] = useState("south");
   const [panelEfficiency, setPanelEfficiency] = useState([20]);
+  const [measuredArea, setMeasuredArea] = useState(0);
+
+  const handleCoordinatesChange = (lat: number, lng: number) => {
+    setLatitude(lat.toFixed(6));
+    setLongitude(lng.toFixed(6));
+  };
+
+  const handleAreaChange = (area: number) => {
+    setMeasuredArea(area);
+    setInstallationArea(area.toString());
+  };
+
+  const handleRecenter = () => {
+    (window as any).mapControls?.recenter();
+  };
+
+  const handleClearDrawing = () => {
+    (window as any).mapControls?.clearDrawing();
+  };
 
   useEffect(() => {
     // Check authentication status
@@ -80,7 +100,7 @@ const Estimate = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Map className="w-5 h-5 text-primary" />
+                <MapIcon className="w-5 h-5 text-primary" />
                 <CardTitle>Area Measurement Tool</CardTitle>
               </div>
               <CardDescription>
@@ -92,7 +112,7 @@ const Estimate = () => {
                 <div className="space-y-2">
                   <Label htmlFor="latitude">
                     <span className="flex items-center gap-1">
-                      <Map className="w-4 h-4" />
+                      <MapIcon className="w-4 h-4" />
                       Latitude
                     </span>
                   </Label>
@@ -106,7 +126,7 @@ const Estimate = () => {
                 <div className="space-y-2">
                   <Label htmlFor="longitude">
                     <span className="flex items-center gap-1">
-                      <Map className="w-4 h-4" />
+                      <MapIcon className="w-4 h-4" />
                       Longitude
                     </span>
                   </Label>
@@ -119,20 +139,27 @@ const Estimate = () => {
                 </div>
               </div>
 
-              {/* Map Placeholder */}
-              <div className="w-full h-96 bg-muted rounded-lg border-2 border-dashed border-border flex items-center justify-center">
-                <div className="text-center space-y-2">
-                  <Map className="w-12 h-12 text-muted-foreground mx-auto" />
-                  <p className="text-lg font-semibold text-foreground">Coming Soon</p>
-                  <p className="text-sm text-muted-foreground">Interactive map will be available here</p>
+              {/* Interactive Map */}
+              <Map
+                latitude={latitude}
+                longitude={longitude}
+                onCoordinatesChange={handleCoordinatesChange}
+                onAreaChange={handleAreaChange}
+              />
+
+              {measuredArea > 0 && (
+                <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+                  <p className="text-sm font-medium text-foreground">
+                    Measured Area: <span className="text-primary font-bold">{measuredArea.toLocaleString()} m²</span>
+                  </p>
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1" onClick={handleClearDrawing}>
                   Clear Drawing
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1" onClick={handleRecenter}>
                   Recenter Map
                 </Button>
               </div>
